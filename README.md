@@ -23,6 +23,6 @@ The project consists of developing a data application and deploy it in a public 
 
 ## Folders
 --- 
-The foolders in the repository include: 
+The folders in the repository include: 
 - FrontEnd: All the files needed for the frontEnd are available in this folder. For more information please refer to the [README](./FrontEnd/README.md) in the folder
 - API: All the files needed for the API are available in this folder. For more information please refer to the [README](./API/README.md) in the folder
