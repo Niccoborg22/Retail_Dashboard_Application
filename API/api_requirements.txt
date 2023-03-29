@@ -1,0 +1,10 @@
+SQLAlchemy==1.4.40
+Flask
+gunicorn==20.1.0
+flask-restx
+pymysql
+pandas
+pymongo[tls, srv] 
+dnspython
+os
+dotenv

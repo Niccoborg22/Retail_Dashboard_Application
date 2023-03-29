@@ -1,0 +1,142 @@
+{% extends "base.html" %} {% block main %}
+<div class="px-4 py-1 my-5 text-center">
+  <h1 id="indexTitle" class="display-5 fw-bold" class="fs-4">
+    <i class="fa-solid fa-user"></i> Customers Dataset
+  </h1>
+  <div class="col-lg-10 mx-auto">
+    <p class="lead mb-4">
+      The Customers dataset has a record of all the customers in the H&M
+      database and their characteristics. Here are some KPIs and graphs to
+      understand the dataset
+    </p>
+  </div>
+</div>
+<div id="parentContainer">
+  <div id="waitingScreen">
+    <img
+      src="https://upload.wikimedia.org/wikipedia/commons/b/b1/Loading_icon.gif?20151024034921"
+      alt="Waiting Screen"
+      id="imageScreen"
+    />
+  </div>
+  <div id="data">
+    <div class="red-container">
+      <div class="black-header">
+        <h3 id="blackTitle">KPIs</h3>
+      </div>
+      <div class="kpi">
+        <div class="kpi-number" id="KPI1"></div>
+        <div class="kpi-explanation">
+          Total number of customers in the dataset
+        </div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-number" id="KPI2"></div>
+        <div class="kpi-explanation">Avarage Age of the customers</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-number" id="KPI3"></div>
+        <div class="kpi-explanation">Percentage of Active Club members</div>
+      </div>
+    </div>
+    <p></p>
+    <div class="red-graphs-container">
+      <div class="black-header">
+        <h3 id="blackTitle">Graphs</h3>
+      </div>
+      <div class="graph">
+        <h5 id="graphTitle">Customer age distribution</h5>
+        <canvas id="product_group_chart" class="chart"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+  // Get the data and parse it as a JSON
+  let data = {{ customers_json | tojson }};
+  data = JSON.parse(data);
+
+  // KPI 1 - Total number of customers in the dataset
+  // save in the variable count the total number of customers
+  let totalCustomers = new Set();
+  data.forEach((item) => {
+  totalCustomers.add(item.customer_id);
+  });
+  let count = totalCustomers.size;
+
+  // Display it in the website
+  let kpi1 = document.getElementById('KPI1');
+  kpi1.textContent = count;
+
+  // KPI 2 - Avarage Age of the customers
+  // save in the variable avarage the avarage age of the customers
+  let ageSum = 0;
+  let agecount = 0;
+  data.forEach((item) => {
+      ageSum += Number(item.age);
+      agecount++;
+  });
+  let average = ageSum / agecount;
+  average = average.toFixed(2);
+
+  // Display it in the website
+  let kpi2 = document.getElementById('KPI2');
+  kpi2.textContent = average;
+
+  // KPI 3 - Percentage of Active club members
+  // save in the variable avarage the avarage age of the customers
+  let activeSum = 0;
+  data.forEach((item) => {
+      if(item.club_member_status == 'ACTIVE'){
+          activeSum ++;
+      }
+  });
+  let averageActive = (activeSum / count)*100;
+  averageActive = averageActive.toFixed(2) +'%';
+
+  // Display it in the website
+  let kpi3 = document.getElementById('KPI3');
+  kpi3.textContent = averageActive;
+
+
+
+  // GRAPH 1 - Bar graph to show the number of customer per age value
+  // Process the data to get the counts per age group
+  let ageCounts = {};
+  data.forEach(customer => {
+      if (ageCounts[customer.age]) {
+          ageCounts[customer.age]++;
+      } else {
+          ageCounts[customer.age] = 1;
+      }
+  });
+
+  // Create the data for the chart
+  let chartData = {
+      labels: Object.keys(ageCounts),
+      datasets: [{
+          label: 'Number of Customers',
+          data: Object.values(ageCounts),
+          backgroundColor: 'rgba(54, 162, 235, 0.2)',
+          borderColor: 'rgba(54, 162, 235, 1)',
+          borderWidth: 1
+      }]
+  };
+  let ctx = document.getElementById('product_group_chart').getContext('2d');
+  let myChart = new Chart(ctx, {
+      type: 'bar',
+      data: chartData,
+      options: {
+          scales: {
+              yAxes: [{
+                  ticks: {
+                      beginAtZero:true
+                  }
+              }]
+          }
+      }
+  });
+  document.getElementById("waitingScreen").style.display = "none";
+  document.getElementById("data").style.visibility = "visible";
+</script>
+{% endblock %}

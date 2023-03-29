@@ -1,0 +1,35 @@
+{% extends "base.html" %} {% block main %}
+<div class="px-4 py-1 my-5 text-center">
+  <h1 id="indexTitle" class="display-5 fw-bold" class="fs-4">
+    Welcome <i class="fa-solid fa-door-open"></i>
+  </h1>
+  <div class="col-lg-10 mx-auto">
+    <p class="lead mb-4">
+      In order to enter the page, please register
+      <i class="fa-solid fa-address-card"></i> in the page
+    </p>
+  </div>
+</div>
+<form action="/register" method="POST">
+  <label for="username">Username:</label>
+  <input
+    placeholder="username"
+    type="text"
+    name="username"
+    id="username"
+    class="form-control"
+  />
+
+  <label for="password">Password:</label>
+  <input
+    placeholder="password"
+    type="password"
+    name="password"
+    id="password"
+    class="form-control"
+  />
+
+  <input type="submit" />
+</form>
+
+{% endblock %}

@@ -1,0 +1,187 @@
+{% extends "base.html" %} {% block main %}
+<div class="px-4 py-1 my-5 text-center">
+  <h1 id="indexTitle" class="display-5 fw-bold" class="fs-4">
+    <i class="fa-solid fa-shirt"></i> Articles Dataset
+  </h1>
+<div class="col-lg-10 mx-auto">
+  <p class="lead mb-4">
+    The Articles dataset has a record of all the articles in the H&M catalog and
+    all its characteristics. Here are some KPIs and graphs to understand the
+    dataset
+  </p>
+</div>
+<div id="parentContainer">
+  <div id="waitingScreen">
+    <img
+      src="https://upload.wikimedia.org/wikipedia/commons/b/b1/Loading_icon.gif?20151024034921"
+      alt="Waiting Screen"
+      id="imageScreen"
+    />
+  </div>
+  <div id="data">
+    <div class="red-container">
+      <div class="black-header">
+        <h3 id="blackTitle">KPIs</h3>
+      </div>
+      <div class="kpi">
+        <div class="kpi-number" id="KPI1"></div>
+        <div class="kpi-explanation">Number of different unique articles</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-number" id="KPI2"></div>
+        <div class="kpi-explanation">Total number of articles</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-number" id="KPI3"></div>
+        <div class="kpi-explanation">Number of unique colours available</div>
+      </div>
+    </div>
+    <p></p>
+    <div class="red-graphs-container">
+      <div class="black-header">
+        <h3 id="blackTitle">Graphs</h3>
+      </div>
+      <div class="graph">
+        <h5 id="graphTitle">Number of articles per product group</h5>
+        <canvas id="product_group_chart" class="chart"></canvas>
+      </div>
+      <div class="graph">
+        <h5 id="graphTitle">Number of articles per colour</h5>
+        <canvas id="colour_group_chart" class="chart"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script type="text/javascript">
+  // Get the data and parse it as a JSON
+  let data = {{ articles_json | tojson }};
+  data = JSON.parse(data);
+
+  // KPI 1 - Number of different unique articles
+  // save in the variable count the number of unique articles
+  let uniqueProductTypes = new Set();
+  data.forEach((item) => {
+    uniqueProductTypes.add(item.product_code);
+  });
+  let count = uniqueProductTypes.size;
+
+  // Display it in the website
+  let kpi1 = document.getElementById('KPI1');
+  kpi1.textContent = count;
+
+  // KPI 2 - Total number of articles
+  // save in the variable count the total number articles
+  let totalProductTypes = new Set();
+  data.forEach((item) => {
+    totalProductTypes.add(item.article_id);
+  });
+  let total_count = totalProductTypes.size;
+
+  // Display it in the website
+  let kpi2 = document.getElementById('KPI2');
+  kpi2.textContent = total_count;
+
+  // KPI 3 - Number of unique colours available
+  // save in the variable count the number of unique colours
+  let uniqueColours = new Set();
+  data.forEach((item) => {
+    uniqueColours.add(item.colour_group_name);
+  });
+  let unique_colour_count = uniqueColours.size;
+
+  // Display it in the website
+  let kpi3 = document.getElementById('KPI3');
+  kpi3.textContent = unique_colour_count;
+
+
+  // GRAPH 1 - Bar graph to show the number of articles per product group
+  // count the number of occurrences of each product_group_name
+  let product_group_counts = {};
+  data.forEach((item) => {
+    let name = item.product_group_name;
+    product_group_counts[name] = (product_group_counts[name] || 0) + 1;
+  });
+
+  // create the chart data
+  let pg_chartData = {
+    labels: Object.keys(product_group_counts),
+    datasets: [
+      {
+        label: "Number of occurrences",
+        data: Object.values(product_group_counts),
+        backgroundColor: "rgba(54, 162, 235, 0.2)",
+        borderColor: "rgba(54, 162, 235, 1)",
+        borderWidth: 1,
+      },
+    ],
+  };
+  let pg_ctx = document.getElementById("product_group_chart").getContext("2d");
+  let pg_Chart = new Chart(pg_ctx, {
+    type: "bar",
+    data: pg_chartData,
+    options: {
+          title: {
+    display: true,
+    text: 'Number of articles per product group'
+  },
+      scales: {
+        yAxes: [
+          {
+            ticks: {
+              beginAtZero: true,
+            },
+          },
+        ],
+      },
+    },
+  });
+
+  // GRAPH 2 - Bar graph to show the number of articles per colour group
+  // count the number of occurrences of each colour_group_name
+  let colour_counts = {};
+  data.forEach((item) => {
+    let c_name = item.colour_group_name;
+    colour_counts[c_name] = (colour_counts[c_name] || 0) + 1;
+  });
+
+  // create the chart data
+  let c_chartData = {
+    labels: Object.keys(colour_counts),
+    datasets: [
+      {
+        label: "Number of occurrences",
+        data: Object.values(colour_counts),
+        backgroundColor: "rgba(54, 162, 235, 0.2)",
+        borderColor: "rgba(54, 162, 235, 1)",
+        borderWidth: 1,
+      },
+    ],
+  };
+  let ctx = document.getElementById("colour_group_chart").getContext("2d");
+  let c_myChart = new Chart(ctx, {
+    type: "bar",
+    data: c_chartData,
+    options: {
+      title: {
+        display: true,
+        text: 'Number of articles per colour'
+      },
+      scales: {
+        yAxes: [
+          {
+            ticks: {
+              beginAtZero: true,
+            },
+          },
+        ],
+      },
+    },
+  });
+
+  // Show the data once loaded and make the loading screen disappear
+  document.getElementById("waitingScreen").style.display = "none";
+  document.getElementById("data").style.visibility = "visible";
+</script>
+{% endblock %}

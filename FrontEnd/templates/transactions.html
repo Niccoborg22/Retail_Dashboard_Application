@@ -1,0 +1,147 @@
+{% extends "base.html" %} {% block main %}
+<div class="px-4 py-1 my-5 text-center">
+  <h1 id="indexTitle" class="display-5 fw-bold" class="fs-4">
+    <i class="fa-solid fa-receipt"></i> Transactions Dataset
+  </h1>
+  <div class="col-lg-10 mx-auto">
+    <p class="lead mb-4">
+      The Transactions dataset has a record of all the transactions in the H&M
+      database and some characteristics. Here are some KPIs and graphs to
+      understand the dataset
+    </p>
+  </div>
+</div>
+<div id="parentContainer">
+  <div id="waitingScreen">
+    <img
+      src="https://upload.wikimedia.org/wikipedia/commons/b/b1/Loading_icon.gif?20151024034921"
+      alt="Waiting Screen"
+      id="imageScreen"
+    />
+  </div>
+  <div id="data">
+    <div class="red-container">
+      <div class="black-header">
+        <h3 id="blackTitle">KPIs</h3>
+      </div>
+      <div class="kpi">
+        <div class="kpi-number" id="KPI1"></div>
+        <div class="kpi-explanation">Total number of days in the dataset</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-number" id="KPI2"></div>
+        <div class="kpi-explanation">
+          Total number of transactions in the dataset
+        </div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-number" id="KPI3"></div>
+        <div class="kpi-explanation">
+          Percentage of transactions with sales channel 1
+        </div>
+      </div>
+    </div>
+    <p></p>
+  
+  <div class="red-graphs-container">
+    <div class="black-header">
+      <h3 id="blackTitle">Graphs</h3>
+    </div>
+    <div class="graph">
+      <h5 id="graphTitle"></h5>
+      <canvas id="product_group_chart" class="chart"></canvas>
+    </div>
+  </div>
+  </div>
+</div>
+<script type="text/javascript">
+  // Get the data and parse it as a JSON
+  let data = {{ transactions_json | tojson }};
+  data = JSON.parse(data);
+
+  // KPI 1 - Total number of days in the dataset
+  // save in the variable count the total number of transactions
+  let totalDays = new Set();
+  data.forEach((item) => {
+  totalDays.add(item.t_dat);
+  });
+  let count = totalDays.size;
+
+
+  // Display it in the website
+  let kpi1 = document.getElementById('KPI1');
+  kpi1.textContent = count;
+
+
+  // KPI 2 - Total number of transactions in the dataset
+  // save in the variable count the total number of transactions
+  let totalTransactions = new Set();
+  data.forEach((item) => {
+  totalTransactions.add(item);
+  });
+  let transCount = totalTransactions.size;
+
+
+  // Display it in the website
+  let kpi2 = document.getElementById('KPI2');
+  kpi2.textContent = transCount;
+
+
+  // KPI 3 - Percentage of transactions with sales channel 1
+  // save in the variable percentage the % number of transactions with sales channel 1
+  let totalChannelOne = 0;
+  data.forEach((item) => {
+    if (item.sales_channel_id == 1) {
+      totalChannelOne++;
+    }
+  });
+  let percentage = (totalChannelOne / transCount) * 100;
+  percentage = percentage.toFixed(2)
+
+  // Display it in the website
+  let kpi3 = document.getElementById('KPI3');
+  kpi3.textContent = percentage + '%';
+
+  // GRAPH 1 - Bar graph to show the total sales per day
+  // add the total number of sales by date
+  const salesByDate = data.reduce((acc, curr) => {
+    const date = curr.t_dat;
+    acc[date] = acc[date] ? acc[date] + 1 : 1;
+    return acc;
+  }, {});
+
+  // Create chart using Chart.js library
+  const chartData = {
+    labels: Object.keys(salesByDate),
+    datasets: [{
+      label: 'Total Sales per Day',
+      data: Object.values(salesByDate),
+      backgroundColor: 'rgba(54, 162, 235, 0.2)',
+      borderColor: 'rgba(54, 162, 235, 1)',
+      borderWidth: 1
+    }]
+  };
+
+  const chartOptions = {
+    scales: {
+      yAxes: [{
+        ticks: {
+          beginAtZero: true
+        }
+      }]
+    }
+  };
+
+  const chartConfig = {
+    type: 'bar',
+    data: chartData,
+    options: chartOptions
+  };
+
+  const salesChart = new Chart(document.getElementById('product_group_chart'), chartConfig);
+
+  // Show the data once loaded and make the loading screen disappear
+  document.getElementById("waitingScreen").style.display = "none";
+  document.getElementById("data").style.visibility = "visible";
+</script>
+{% endblock %}

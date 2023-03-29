@@ -1,0 +1,117 @@
+{% extends "base.html" %} {% block main %}
+
+<div class="px-4 py-1 my-5 text-center">
+  <img
+    src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/H%26M-Logo.svg/2560px-H%26M-Logo.svg.png"
+    alt="H&M logo"
+    style="width: 100px; height: 60px"
+  />
+  <h1 id="indexTitle" class="display-5 fw-bold" class="fs-4">
+    Data Visualization
+  </h1>
+  <div class="col-lg-10 mx-auto">
+    <p class="lead mb-4">
+      In this website you will be able to gain insights on various aspects of
+      the value chain of H&M. The data has been provided from the company and
+      has been uploaded to Google Cloud and MongoDb in order to be secured in
+      the cloud <i class="fa-solid fa-cloud"></i>. By exploring the
+      <a href="/articles">articles<i class="fa-solid fa-shirt"></i></a>,
+      <a href="/customers">customer<i class="fa-solid fa-user"></i></a> and
+      <a href="/transactions">
+        transactions<i class="fa-solid fa-receipt"></i
+      ></a>
+      part of the website you will be presented with graphs and KPIs that give
+      some insights on the portfolio of H&M. If you want to search for your own
+      insights and find your own KPIs you should check out the
+      <a href="/playdatasets"
+        >play with datasets<i class="fa-solid fa-sliders"></i
+      ></a>
+      part of the website.
+    </p>
+    <p class="lead mb-4">
+      Good luck with your findings! <i class="fa-solid fa-clover"></i>
+    </p>
+  </div>
+  <style>
+    .image-container {
+      display: flex;
+      justify-content: center;
+    }
+    .image-wrapper {
+      margin: 10px;
+      text-align: center;
+    }
+    #showImages {
+      border: 2px solid #c31a1a;
+      width: 300px;
+      height: 190px;
+    }
+  </style>
+
+  <div class="image-container">
+    <div class="image-wrapper">
+      <h2
+        class="display-5 fw-bold fs-4"
+        style="margin-left: 10px; font-family: 'HM Sans Bold'; color: #c31a1a"
+      >
+        Customers
+      </h2>
+      <a href="/customers">
+        <img
+          src="https://149695847.v2.pressablecdn.com/wp-content/uploads/2021/07/hm-shop.jpg"
+          alt="Image Customers"
+          id="showImages"
+        />
+      </a>
+    </div>
+    <div class="image-wrapper">
+      <h2
+        class="display-5 fw-bold fs-4"
+        style="margin-left: 10px; font-family: 'HM Sans Bold'; color: #c31a1a"
+      >
+        Articles
+      </h2>
+      <a href="/articles">
+        <img
+          src="https://i0.wp.com/www.ritzmagazine.in/wp-content/uploads/2016/08/HM-Store-Interiors-The-Connaught-High-Street.jpg?fit=1500%2C1001&ssl=1"
+          alt="Image Articles"
+          id="showImages"
+        />
+      </a>
+    </div>
+    <div class="image-wrapper">
+      <h2
+        class="display-5 fw-bold fs-4"
+        style="margin-left: 10px; font-family: 'HM Sans Bold'; color: #c31a1a"
+      >
+        Transactions
+      </h2>
+      <a href="/transactions">
+        <img
+          src="https://www.theindustry.fashion/wp-content/uploads/2021/09/Contactless.jpg"
+          alt="Image Transactions"
+          id="showImages"
+        />
+      </a>
+    </div>
+    <div class="image-wrapper">
+      <h2
+        class="display-5 fw-bold fs-4"
+        style="margin-left: 10px; font-family: 'HM Sans Bold'; color: #c31a1a"
+      >
+        Play with the datasets
+      </h2>
+      <a href="/playdatasets">
+        <img
+          src="https://knowledge.carolina.com/wp-content/uploads/2021/08/graph_3068300.jpg"
+          alt="Image PlayDatasets"
+          id="showImages"
+        />
+      </a>
+    </div>
+  </div>
+</div>
+
+
+
+{% endblock %}

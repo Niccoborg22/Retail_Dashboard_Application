@@ -1,0 +1,36 @@
+{% extends "base.html" %} {% block main %}
+
+<div class="px-4 py-1 my-5 text-center">
+  <h1 id="indexTitle" class="display-5 fw-bold" class="fs-4">
+    Welcome back <i class="fa-regular fa-face-smile-beam"></i>
+  </h1>
+  <div class="col-lg-10 mx-auto">
+    <p class="lead mb-4">
+      In order to enter the page, please login
+      <i class="fa-solid fa-right-to-bracket"></i> in the page
+    </p>
+  </div>
+</div>
+
+<form action="/login" method="POST">
+  <label for="username">Username:</label>
+  <input
+    placeholder="username"
+    type="text"
+    name="username"
+    id="username"
+    class="form-control"
+  />
+
+  <label for="password">Password:</label>
+  <input
+    placeholder="password"
+    type="password"
+    name="password"
+    id="password"
+    class="form-control"
+  />
+
+  <input type="submit" />
+</form>
+{% endblock %}

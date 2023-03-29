@@ -1,0 +1,274 @@
+{% extends "base.html" %} {% block main %}
+
+<div class="px-4 py-1 my-5 text-center">
+  <h1 id="indexTitle" class="display-5 fw-bold" class="fs-4">
+    <i class="fa-solid fa-sliders"></i> Play with the dataset
+  </h1>
+  <div class="col-lg-10 mx-auto">
+    <p class="lead mb-4">
+      In this page you will be able to filter and play with the dataset to plot
+      some graphs and discover more about the data
+    </p>
+  </div>
+</div>
+<div id="red-play-container">
+  <div class="play-header">
+    <h3 id="blackTitle">Filters</h3>
+  </div>
+  <div>
+    <label for="salesChannelSelect"
+      ><strong>Select a sales channel:</strong></label
+    >
+    <select id="salesChannelSelect">
+      <option value="all">All</option>
+      <option value="1">Sales Channel 1</option>
+      <option value="2">Sales Channel 2</option>
+    </select>
+  </div>
+
+  <div id="sectionFilter">
+    <label for="sectionSelect"><strong>Select a section:</strong></label
+    ><br />
+    <select id="sectionSelect">
+      <option value="all">All</option>
+    </select>
+  </div>
+  <div id="ageFilter">
+    <p><strong>Select an age range:</strong></p>
+    <div id="slider"></div>
+    <br />
+    <p>Age range selected: <span id="slider-value"></span></p>
+  </div>
+  <button type="submit" class="btn btn-primary" id="submitButton">
+    <i class="fa-solid fa-filter"></i> Filter data!
+  </button>
+</div>
+<p></p>
+<div class="red-graphs-container">
+  <div class="black-header">
+    <h3 id="blackTitle">Graphs</h3>
+  </div>
+  <div class="graph">
+    <h5 id="graphTitle">Sales count per day</h5>
+    <canvas id="salesPerDay_chart" class="chart"></canvas>
+  </div>
+  <div class="graph">
+    <h5 id="graphTitle">Total selling $ per day</h5>
+    <canvas id="totalSalesPerDay_chart" class="chart"></canvas>
+  </div>
+</div>
+
+<script>
+    // Get the data and parse it as a JSON
+    let data = {{ alldata_json | tojson }};
+    data = JSON.parse(data);
+
+    // SLIDER FILTER
+    var slider = document.getElementById("slider");
+    var sliderValueElement = document.getElementById("slider-value");
+    let roundedValues = [18, 80];
+    // create the filter
+    noUiSlider.create(slider, {
+      start: [18, 80],
+      connect: true,
+      range: {
+        min: 1,
+        max: 100,
+      },
+      step: 1,
+    });
+    // Update the value display when the slider value changes
+    slider.noUiSlider.on("update", function (values) {
+      // Round values to nearest integer
+      roundedValues = values.map(function (value) {
+        return Math.round(value);
+      });
+      // Update value display
+      sliderValueElement.textContent = roundedValues.join(" - ");
+    });
+    // Create a new variable only with the entries with age between the one chosen
+    let filtered_data_1 = data.filter(function (entry) {
+    return entry.age >= roundedValues[0] && entry.age <= roundedValues[1];
+    });
+
+    // SALES CHANNEL FILTER
+    const salesChannelSelect = document.getElementById("salesChannelSelect");
+    let filtered_data_2;
+    // Create a new variable only with the entries that the user selected
+    const selectedSalesChannel = salesChannelSelect.value;
+    if (selectedSalesChannel === "all") {
+      filtered_data_2 = filtered_data_1;
+    } else {
+      filtered_data_2 = filtered_data_1.filter(
+        (row) => row.sales_channel_id === Number(selectedSalesChannel)
+      );
+    }
+
+    // SECTION FILTER
+    const sectionSelect = document.getElementById("sectionSelect");
+    // set the options in the drop down filter
+    let uniqueSalesChannelIds = Array.from(new Set(data.map(row => row.section_name)));
+    uniqueSalesChannelIds.forEach(id => {
+      let option = document.createElement("option");
+      option.value = id;
+      option.text = id;
+      sectionSelect.add(option);
+    });
+    let filtered_data_3;
+    // Create a new variable only with the entries that the user selected
+    const selected_sectionSelect = sectionSelect.value;
+    if (selected_sectionSelect === "all") {
+      filtered_data_3 = filtered_data_2
+    } else {
+      filtered_data_3 = filtered_data_2.filter(
+        (row) => row.section_name === selected_sectionSelect
+      );
+    }
+
+    // FUNCTION FINDDATASETS - Function to find find the filtered dataset according to the user input
+    function findDataset() {
+    // SLIDER FILTER
+    var slider = document.getElementById("slider");
+    let filtered_data_1 = data.filter(function (entry) {
+      return entry.age >= roundedValues[0] && entry.age <= roundedValues[1];
+    });
+
+    // SALES CHANNEL FILTER
+    let salesChannelSelect = document.getElementById("salesChannelSelect");
+    let filtered_data_2;
+    let selectedSalesChannel = salesChannelSelect.value;
+    if (selectedSalesChannel === "all") {
+      filtered_data_2 = filtered_data_1;
+    } else {
+      filtered_data_2 = filtered_data_1.filter(
+        (row) => row.sales_channel_id === Number(selectedSalesChannel)
+      );
+    }
+
+    // SECTION FILTER
+    const sectionSelect = document.getElementById("sectionSelect");
+    let filtered_data_3;
+    const selected_sectionSelect = sectionSelect.value;
+    if (selected_sectionSelect === "all") {
+      filtered_data_3 = filtered_data_2;
+    } else {
+      filtered_data_3 = filtered_data_2.filter(
+        (row) => row.section_name === selected_sectionSelect
+      );
+    }
+
+    return filtered_data_3;
+  }
+
+
+
+
+  // FUNCTION GRAPH 1 - Bar graph to show the total sales per day
+  // add the total number of sales by date
+  function amountSalesGraph(data){
+    const canvas = document.getElementById('salesPerDay_chart');
+    const context = canvas.getContext('2d');
+
+    // Destroy existing chart if it exists
+    if (window.salesPerDay_chart && typeof window.salesPerDay_chart.destroy === 'function') {
+      window.salesPerDay_chart.destroy();
+    }
+
+    // add the total number of sales by date
+    const salesByDate = data.reduce((acc, curr) => {
+        const date = curr.t_dat;
+        acc[date] = acc[date] ? acc[date] + 1 : 1;
+        return acc;
+      }, {});
+
+    // Create chart using Chart.js library
+    const chartData = {
+      labels: Object.keys(salesByDate).sort(),
+      datasets: [{
+        label: 'Total Sales per Day',
+        data: Object.values(salesByDate),
+        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+        borderColor: 'rgba(54, 162, 235, 1)',
+        borderWidth: 1
+      }]
+    };
+
+    const chartOptions = {
+      scales: {
+        yAxes: [{
+          ticks: {
+            beginAtZero: true
+          }
+        }]
+      }
+    };
+
+    const chartConfig = {
+      type: 'bar',
+      data: chartData,
+      options: chartOptions
+    };
+
+    window.salesPerDay_chart = new Chart(context, chartConfig);
+  }
+
+  // FUNCTION GRAPH 2 - Bar graph to show the total amount of sales per day
+  // add the sum amount of sales by date
+  function salesGraph(data){
+    const canvas_s = document.getElementById('totalSalesPerDay_chart');
+    console.log(canvas_s);
+    const context_s = canvas_s.getContext('2d');
+
+    // Destroy existing chart if it exists
+    if (window.totalSalesPerDay_chart && typeof window.totalSalesPerDay_chart.destroy === 'function') {
+      window.totalSalesPerDay_chart.destroy();
+    }
+
+    // Add the total sales amount by date
+    const salesAmountByDate = data.reduce((acc, curr) => {
+      const date = curr.t_dat;
+      const price = Number(curr.price);
+      acc[date] = acc[date] ? acc[date] + price : price;
+      return acc;
+    }, {});
+
+    // Create chart using Chart.js library
+    const chartData = {
+      labels: Object.keys(salesAmountByDate).sort(),
+      datasets: [{
+        label: 'Total Sales Amount per Day',
+        data: Object.values(salesAmountByDate),
+        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+        borderColor: 'rgba(255, 99, 132, 1)',
+        borderWidth: 1
+      }]
+    };
+
+    const chartOptions = {
+      scales: {
+        yAxes: [{
+          ticks: {
+            beginAtZero: true
+          }
+        }]
+      }
+    };
+
+    const chartConfig = {
+      type: 'line',
+      data: chartData,
+      options: chartOptions
+    };
+
+    window.totalSalesPerDay_chart = new Chart(context_s, chartConfig);
+  }
+
+
+  let filterButton = document.getElementById('submitButton');
+  filterButton.addEventListener('click', function() {
+    var data = findDataset();
+    amountSalesGraph(data);
+    salesGraph(data);
+  });
+</script>
+{% endblock %}
